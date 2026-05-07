@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CEO Tasks PWA — 経営者の毎朝タスクを自動生成、スマホ1タップで進捗管理 (デモ画面)">
+<title>CEO Tasks PWA デモ — West Fusion AI</title>
+<style>
+:root {
+  --c-primary: #1e3a5f;
+  --c-primary-light: #3b82f6;
+  --c-accent-purple: #8b5cf6;
+  --c-accent-green: #10b981;
+  --c-accent-orange: #f59e0b;
+  --c-accent-pink: #ec4899;
+  --c-accent-red: #ef4444;
+  --c-bg: #f8fafc;
+  --c-card: #ffffff;
+  --c-text: #1e293b;
+  --c-text-muted: #64748b;
+  --c-border: #e2e8f0;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.06);
+  --gradient-hero: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #6d28d9 100%);
+  --gradient-card1: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  --gradient-card2: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  --gradient-card3: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  --gradient-card4: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Yu Gothic', 'Noto Sans JP', sans-serif;
+  line-height: 1.7;
+  color: var(--c-text);
+  background: var(--c-bg);
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+
+/* HERO */
+.hero {
+  background: var(--gradient-hero);
+  color: white;
+  padding: 80px 20px 100px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(245,158,11,0.18) 0%, transparent 40%),
+    radial-gradient(circle at 85% 75%, rgba(236,72,153,0.20) 0%, transparent 45%);
+  pointer-events: none;
+}
+.hero-tag {
+  display: inline-block;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  padding: 6px 16px;
+  border-radius: 100px;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  margin-bottom: 20px;
+  position: relative; z-index: 1;
+}
+.hero h1 {
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 18px;
+  line-height: 1.3;
+  position: relative; z-index: 1;
+}
+.hero h1 .accent { background: linear-gradient(135deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .lead { font-size: 18px; color: #e0e7ff; margin-bottom: 30px; position: relative; z-index: 1; }
+.hero .by { font-size: 14px; color: #c7d2fe; position: relative; z-index: 1; }
+.hero .by strong { color: white; }
+@media (max-width: 600px) { .hero h1 { font-size: 26px; } .hero { padding: 60px 20px 70px; } }
+
+/* SECTIONS */
+section.s {
+  background: var(--c-card);
+  border-radius: 16px;
+  padding: 40px;
+  margin: -50px auto 28px;
+  box-shadow: var(--shadow-md);
+  position: relative; z-index: 2;
+}
+section.s + section.s { margin-top: 28px; }
+section h2 {
+  font-size: 24px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+section h2 .num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  background: var(--c-primary);
+  color: white;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+section p { margin-bottom: 14px; }
+section h3 { font-size: 17px; margin: 20px 0 10px; color: var(--c-primary); }
+
+/* PWA SCREEN — MAIN SHOWCASE */
+.pwa-showcase {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 30px;
+  align-items: start;
+  margin: 24px 0;
+}
+@media (max-width: 800px) { .pwa-showcase { grid-template-columns: 1fr; } }
+
+.pwa-frame {
+  background: #1f2937;
+  border-radius: 32px;
+  padding: 14px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+}
+.pwa-frame::before {
+  content: '';
+  display: block;
+  width: 60px; height: 6px;
+  background: #4b5563;
+  border-radius: 4px;
+  margin: 0 auto 8px;
+}
+.pwa-screen {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  height: 640px;
+  display: flex;
+  flex-direction: column;
+}
+.pwa-bar {
+  background: var(--c-primary);
+  color: white;
+  padding: 14px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.pwa-bar .menu { font-size: 18px; opacity: 0.7; cursor: pointer; }
+.pwa-bar small { font-size: 11px; opacity: 0.7; font-weight: 400; display: block; margin-top: 2px; }
+
+.pwa-tabs {
+  display: flex;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--c-border);
+}
+.pwa-tabs div {
+  flex: 1;
+  padding: 12px 6px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--c-text-muted);
+  cursor: pointer;
+}
+.pwa-tabs div.active {
+  color: var(--c-primary);
+  border-bottom: 2px solid var(--c-primary-light);
+  font-weight: 600;
+  background: white;
+}
+
+.pwa-list {
+  padding: 12px;
+  overflow-y: auto;
+  flex: 1;
+  background: #f8fafc;
+}
+.pwa-task {
+  background: white;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  border-left: 4px solid var(--c-accent-orange);
+  box-shadow: var(--shadow-sm);
+}
+.pwa-task.done { border-left-color: var(--c-accent-green); opacity: 0.65; }
+.pwa-task.skip { border-left-color: #94a3b8; opacity: 0.85; }
+.pwa-task.urgent { border-left-color: var(--c-accent-red); background: linear-gradient(135deg, #fff 0%, #fef2f2 100%); }
+.pwa-task .pri {
+  display: inline-block;
+  padding: 1px 8px;
+  background: var(--c-accent-orange);
+  color: white;
+  border-radius: 100px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.pwa-task.done .pri { background: var(--c-accent-green); }
+.pwa-task.urgent .pri { background: var(--c-accent-red); }
+.pwa-task .t { font-weight: 600; color: var(--c-text); margin-bottom: 4px; line-height: 1.4; }
+.pwa-task .p { color: var(--c-text-muted); font-size: 11px; margin-bottom: 8px; line-height: 1.5; }
+.pwa-actions { display: flex; gap: 6px; }
+.pwa-btn {
+  flex: 1;
+  padding: 7px 0;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  border: 1px solid;
+}
+.pwa-btn.do { background: var(--c-accent-green); border-color: var(--c-accent-green); color: white; }
+.pwa-btn.skip { background: white; border-color: var(--c-border); color: var(--c-text-muted); }
+.pwa-btn.reject { background: white; border-color: #fecaca; color: #b91c1c; }
+.pwa-btn.done-tag { background: var(--c-accent-green); border-color: var(--c-accent-green); color: white; flex: none; padding: 6px 12px; font-size: 11px; }
+
+.showcase-explain h3 { color: var(--c-primary); margin-bottom: 14px; font-size: 19px; }
+.showcase-explain ul { list-style: none; padding: 0; margin-top: 16px; }
+.showcase-explain ul li {
+  padding: 10px 0 10px 32px;
+  position: relative;
+  border-bottom: 1px solid var(--c-border);
+  font-size: 14px;
+}
+.showcase-explain ul li:last-child { border-bottom: none; }
+.showcase-explain ul li::before {
+  content: '✓';
+  position: absolute;
+  left: 0; top: 10px;
+  width: 22px; height: 22px;
+  background: var(--c-accent-green);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* MEMO MOCK */
+.memo-mock {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--c-border);
+  margin: 20px 0;
+  overflow: hidden;
+}
+.memo-input {
+  background: #fffbeb;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--c-border);
+}
+.memo-input .lbl { font-size: 12px; color: var(--c-accent-orange); font-weight: 600; margin-bottom: 6px; }
+.memo-input .txt {
+  font-size: 14px;
+  color: var(--c-text);
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px dashed var(--c-border);
+  font-family: inherit;
+}
+.memo-flow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 16px 20px;
+  align-items: center;
+  font-size: 12px;
+}
+.memo-flow .step {
+  background: #f1f5f9;
+  padding: 10px 6px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--c-primary);
+}
+.memo-flow .arr { text-align: center; color: var(--c-text-muted); font-size: 16px; }
+@media (max-width: 600px) {
+  .memo-flow { grid-template-columns: 1fr; }
+  .memo-flow .arr { transform: rotate(90deg); }
+}
+.memo-output {
+  background: #f0fdf4;
+  padding: 14px 20px;
+  border-top: 1px solid var(--c-border);
+  font-size: 13px;
+  color: #14532d;
+}
+
+/* INTEGRATION FLOW */
+.intg-flow {
+  background: linear-gradient(135deg, #f8fafc 0%, #ede9fe 100%);
+  border-radius: 16px;
+  padding: 32px;
+  margin: 30px 0;
+  border: 1px solid var(--c-border);
+}
+.intg-flow h3 { text-align: center; margin-bottom: 28px; }
+.flow-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.flow-box {
+  background: white;
+  border-radius: 12px;
+  padding: 16px 12px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-primary);
+  border: 2px solid transparent;
+}
+.flow-box .label { display: block; font-size: 11px; color: var(--c-text-muted); font-weight: 500; margin-top: 4px; }
+.flow-box.b-gas { border-color: var(--c-primary-light); }
+.flow-box.b-ai { border-color: var(--c-accent-purple); }
+.flow-box.b-pwa { border-color: var(--c-accent-pink); }
+.flow-box.b-data { border-color: var(--c-accent-orange); }
+.flow-arr { font-size: 20px; color: var(--c-text-muted); text-align: center; }
+@media (max-width: 700px) {
+  .flow-row { grid-template-columns: 1fr; }
+  .flow-arr { transform: rotate(90deg); padding: 6px 0; }
+}
+
+/* KPI */
+.kpi {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+  margin: 24px 0;
+}
+.kpi-card {
+  background: white;
+  border-radius: 14px;
+  padding: 22px 18px;
+  text-align: center;
+  border: 1px solid var(--c-border);
+  position: relative;
+  overflow: hidden;
+}
+.kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--c-primary-light); }
+.kpi-card.k1::before { background: var(--c-accent-orange); }
+.kpi-card.k2::before { background: var(--c-accent-purple); }
+.kpi-card.k3::before { background: var(--c-accent-green); }
+.kpi-card.k4::before { background: var(--c-accent-pink); }
+.kpi-card .num { font-size: 26px; font-weight: 700; color: var(--c-primary); display: block; line-height: 1.2; }
+.kpi-card .lbl { font-size: 12px; color: var(--c-text-muted); margin-top: 6px; }
+
+/* INDUSTRY */
+.ind-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+.ind-card { padding: 22px 20px; border-radius: 14px; border: 1px solid var(--c-border); }
+.ind-card.i1 { background: var(--gradient-card2); }
+.ind-card.i2 { background: var(--gradient-card3); }
+.ind-card.i3 { background: var(--gradient-card1); }
+.ind-card.i4 { background: var(--gradient-card4); }
+.ind-card.i5 { background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); }
+.ind-card h4 { font-size: 16px; margin-bottom: 8px; color: var(--c-primary); }
+.ind-card p { font-size: 13px; color: var(--c-text); line-height: 1.6; margin-bottom: 0; }
+
+/* CONTACT */
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+.contact-item {
+  background: var(--c-bg);
+  padding: 18px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--c-border);
+}
+.contact-item .lbl { font-size: 12px; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; font-weight: 600; }
+.contact-item .val { font-size: 15px; color: var(--c-primary); word-break: break-all; }
+.contact-item .val a { color: var(--c-primary-light); text-decoration: none; }
+
+/* DISCLAIMER */
+.disclaimer {
+  background: #fffbeb;
+  border-left: 4px solid var(--c-accent-orange);
+  padding: 14px 18px;
+  margin: 18px 0;
+  font-size: 13px;
+  color: #78350f;
+  border-radius: 0 8px 8px 0;
+}
+
+/* FOOTER */
+footer {
+  text-align: center;
+  margin-top: 50px;
+  padding: 30px 20px 50px;
+  color: var(--c-text-muted);
+  font-size: 13px;
+}
+footer p { margin-bottom: 6px; }
+footer a { color: var(--c-primary-light); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <span class="hero-tag">DEMO — West Fusion AI</span>
+  <h1>経営者の毎朝を、<br><span class="accent">AI秘書とスマホ1タップ</span>で動かす</h1>
+  <p class="lead">CEO Tasks PWA — 朝7時に自動生成されるタスクを、移動中にスマホで完結</p>
+  <p class="by"><strong>Hideki West</strong> (西中間 英樹) / 自分自身が日次運用中(2026年4月〜)</p>
+</div>
+
+<div class="wrap">
+
+<!-- 1. これは何 -->
+<section class="s">
+  <h2><span class="num">1</span>このアプリは何をするか</h2>
+
+  <p>毎朝7時、Google Apps Script が動いて <strong>その日にやるべきタスクを5〜8件自動生成</strong> し、スマホPWAに表示します。経営者は移動中の電車・会議の合間・寝る前に、**1タップで「やった/後で/合わない」を記録**するだけ。</p>
+
+  <p>記録は Google スプレッドシートに蓄積され、翌朝のタスク自動生成で「重複を避ける」「合わなかった案件を再提案しない」など、**運用の精度が日々上がっていく**仕組みです。</p>
+
+  <div class="disclaimer">
+    本ページのスクリーンショットは <strong>デモ用の模擬データ</strong> です。タスク内容・メモはサンプルで、実運用データは含まれません。実働版は別URL(運用者のみ・データ非公開)で稼働しています。
+  </div>
+</section>
+
+<!-- 2. 朝のタスク画面 -->
+<section class="s">
+  <h2><span class="num">2</span>朝7時のタスク画面 — 1タップで進捗管理</h2>
+
+  <div class="pwa-showcase">
+
+    <!-- PWA Mock -->
+    <div class="pwa-frame">
+      <div class="pwa-screen">
+        <div class="pwa-bar">
+          <div>
+            <div>📋 CEO Tasks</div>
+            <small>5/7 (火) 7:00 自動生成</small>
+          </div>
+          <div class="menu">⋯</div>
+        </div>
+        <div class="pwa-tabs">
+          <div class="active">📌 タスク (5)</div>
+          <div>💌 メモ</div>
+          <div>📊 履歴</div>
+        </div>
+        <div class="pwa-list">
+
+          <div class="pwa-task urgent">
+            <span class="pri">🔥 最優先</span>
+            <div class="t">マークスさんとの面談準備(LP・プレゼン)</div>
+            <div class="p">面談まであと6日。LP Notion 化と質問リスト確定</div>
+            <div class="pwa-actions">
+              <span class="pwa-btn do">着手</span>
+              <span class="pwa-btn skip">後で</span>
+            </div>
+          </div>
+
+          <div class="pwa-task">
+            <span class="pri">楽天ROOM</span>
+            <div class="t">📤 投稿1本目(7:20)</div>
+            <div class="p">山崎実業 tower マグネットドアフック / 1,650円</div>
+            <div class="pwa-actions">
+              <span class="pwa-btn do">投稿済</span>
+              <span class="pwa-btn skip">後で</span>
+              <span class="pwa-btn reject">合わない</span>
+            </div>
+          </div>
+
+          <div class="pwa-task done">
+            <span class="pri">✅ 完了</span>
+            <div class="t">📤 投稿2本目(12:00)</div>
+            <div class="p">貝印 関孫六 三徳包丁 165mm — 5分前に完了</div>
+          </div>
+
+          <div class="pwa-task">
+            <span class="pri">業務</span>
+            <div class="t">議事録から週報ドラフト確認</div>
+            <div class="p">M365連携で生成済。15分で承認・配信</div>
+            <div class="pwa-actions">
+              <span class="pwa-btn do">確認</span>
+              <span class="pwa-btn skip">後で</span>
+            </div>
+          </div>
+
+          <div class="pwa-task skip">
+            <span class="pri">繰越</span>
+            <div class="t">📤 投稿3本目(15:30)</div>
+            <div class="p">プチプラブラウス — 別の商品で再提案中</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Explanation -->
+    <div class="showcase-explain">
+      <h3>朝のスマホ1分で1日が決まる</h3>
+      <p>毎朝7時、その日のタスクが自動でスマホに届きます。**朝の通勤中に1分で全タスクをスワイプ**するだけで、その日の運用が始動します。</p>
+
+      <ul>
+        <li><strong>最優先タスクは赤帯</strong> — マークス面談など期限付き案件は色分けで一目</li>
+        <li><strong>楽天ROOM/note 投稿は楽天タグ</strong> — メールから連動した実装タスクが時刻指定で並ぶ</li>
+        <li><strong>業務/家事/健康も混在可</strong> — 経営者の1日全体を1画面に</li>
+        <li><strong>「合わない」記録が学習データ</strong> — 翌朝の自動生成で同じ提案が来ない</li>
+        <li><strong>移動中・ベッドの中で操作可</strong> — PWA(Webアプリ)なのでアプリストア不要</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- 3. メモ機能 -->
+<section class="s">
+  <h2><span class="num">3</span>移動中のメモを、AI秘書がGitHubに振り分け</h2>
+
+  <p>運転中・電車内・寝る前にスマホへ口述したメモは、<strong>毎朝7:50に AI秘書(Claude) が自動分類</strong>。GitHub の対応する project / business / engineering ディレクトリに振り分けて、追記・反映します。</p>
+
+  <div class="memo-mock">
+    <div class="memo-input">
+      <div class="lbl">💌 メモ入力(運転中・音声入力可)</div>
+      <div class="txt">「楽天ROOMの画像、午後の枠だけは縦型に統一したいから、来週から切り替える方針にして。あとマークスさん面談の質問リストに、案件規模の質問を追加しといて」</div>
+    </div>
+
+    <div class="memo-flow">
+      <div class="step">スマホ入力</div>
+      <div class="arr">→</div>
+      <div class="step">スプレッドシート蓄積</div>
+      <div class="arr">→</div>
+      <div class="step">Claude 分類・整形</div>
+      <div class="arr">→</div>
+      <div class="step">GitHub 該当ファイル更新</div>
+    </div>
+
+    <div class="memo-output">
+      ✅ <strong>2件の振り分け完了</strong>: <code>company/marketing/rakuten_room_posting_rules.md</code> に画像方針追記 / <code>memory/project_marks_meeting_20260513.md</code> に質問項目追加
+    </div>
+  </div>
+
+  <p>**「忘れる前にメモる」と「正しい場所に保存する」を分離**することで、運転中・移動中の思いつきを失わずに、必要な時に必要な場所で見つかる状態を保ちます。</p>
+</section>
+
+<!-- 4. 連動するシステム -->
+<section class="s">
+  <h2><span class="num">4</span>連動する5つのコンポーネント</h2>
+
+  <p>CEO Tasks PWA は単独のアプリではなく、<strong>5つのコンポーネントが繋がった経営者用OS</strong>として動いています。</p>
+
+  <div class="intg-flow">
+    <h3>Daily Operating System</h3>
+
+    <div class="flow-row">
+      <div class="flow-box b-gas">朝7:00 GAS<span class="label">タスク自動生成</span></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box b-pwa">スマホPWA<span class="label">1タップ操作</span></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box b-data">スプレッドシート<span class="label">操作履歴蓄積</span></div>
+    </div>
+
+    <div class="flow-row">
+      <div class="flow-box b-data">スプレッドシート<span class="label">操作・メモ</span></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box b-ai">朝7:50 Claude<span class="label">分類・整形</span></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box b-data">GitHub<span class="label">該当ファイル更新</span></div>
+    </div>
+  </div>
+
+  <h3>このOSが解く問題</h3>
+  <ul style="margin-left: 22px;">
+    <li>「今日何をすべきか」を毎朝考える時間がゼロに</li>
+    <li>移動中・寝る前のメモが GitHub の正しい場所に自動保存される</li>
+    <li>運用結果が翌朝のタスク生成に反映される(学習ループ)</li>
+    <li>担当者が変わっても引き継ぎが容易(全てがスプレッドシート+GitHubに集約)</li>
+  </ul>
+</section>
+
+<!-- 5. KPI -->
+<section class="s">
+  <h2><span class="num">5</span>運用コストと効果</h2>
+
+  <div class="kpi">
+    <div class="kpi-card k1"><span class="num">¥0</span><span class="lbl">サーバ費用<br>(GAS+GitHub Pages無料枠)</span></div>
+    <div class="kpi-card k2"><span class="num">¥数百</span><span class="lbl">月のClaude API費<br>(メモ分類)</span></div>
+    <div class="kpi-card k3"><span class="num">2分</span><span class="lbl">朝のタスク確認<br>(電車内で完結)</span></div>
+    <div class="kpi-card k4"><span class="num">100%</span><span class="lbl">メモの取りこぼしゼロ<br>(全件GitHubに残る)</span></div>
+  </div>
+
+  <p>稼働中の構成: <strong>Google Apps Script + Google Sheets + Claude API + GitHub Pages PWA</strong>。サーバも常駐プロセスもなく、Googleアカウントと GitHub アカウントだけで動きます。</p>
+</section>
+
+<!-- 6. 横展開 -->
+<section class="s">
+  <h2><span class="num">6</span>こんな経営者・現場で動きます</h2>
+
+  <div class="ind-grid">
+    <div class="ind-card i1">
+      <h4>👔 個人事業主・小規模社長</h4>
+      <p>1日のタスクが流動的、移動が多い、忘れ物リスクが大きい — そういう毎日を1画面に集約</p>
+    </div>
+    <div class="ind-card i2">
+      <h4>🏢 ITに強くない管理職</h4>
+      <p>Excelとメモ帳で回している業務を、スマホ1タップに置き換え</p>
+    </div>
+    <div class="ind-card i3">
+      <h4>📦 EC・SNS運用者</h4>
+      <p>毎朝の投稿・在庫確認・売上チェックを「届いたタスクをこなす」だけにする</p>
+    </div>
+    <div class="ind-card i4">
+      <h4>🏥 医院・小規模医療</h4>
+      <p>院長業務・予約管理・スタッフ連絡を1つのPWAに集約、紙台帳から脱却</p>
+    </div>
+    <div class="ind-card i5">
+      <h4>🍽 飲食店オーナー</h4>
+      <p>毎日の仕込み・発注・SNS投稿・スタッフシフトを1画面で完結</p>
+    </div>
+  </div>
+
+  <p style="margin-top: 18px;">構造は「<strong>朝の自動生成 → スマホ1タップ → 操作履歴 → AI整形 → 翌朝の精度向上</strong>」のループ。業種に合わせて GAS のタスク生成ロジックと AI のプロンプトをカスタマイズします。</p>
+</section>
+
+<!-- 7. 連絡先 -->
+<section class="s">
+  <h2><span class="num">7</span>ご相談先</h2>
+  <p>個人事業主・小規模事業者・経営者向けに、CEO Tasks PWA の <strong>カスタマイズ導入</strong> や、自動化全般のご相談を承ります。30分の無料ヒアリングからお気軽に。</p>
+
+  <div class="contact-grid">
+    <div class="contact-item">
+      <div class="lbl">📧 Email</div>
+      <div class="val"><a href="mailto:west.fusion.ai@gmail.com">west.fusion.ai@gmail.com</a></div>
+    </div>
+    <div class="contact-item">
+      <div class="lbl">💼 LinkedIn</div>
+      <div class="val"><a href="https://www.linkedin.com/in/hideki-west-4b4151403/">linkedin.com/in/hideki-west</a></div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <p><strong>West Fusion AI</strong> — Hideki West (西中間 英樹)</p>
+  <p>機構18年(民生品→自動車Tier-1) + 米国工場技術責任者3年 + 営業課長2年 / 特許出願46件</p>
+  <p style="margin-top: 12px; font-size: 12px;">本ページのスクリーンショットはデモ用の模擬データです。</p>
+  <p style="margin-top: 8px; font-size: 12px;">最終更新: 2026-05-07</p>
+</footer>
+
+</body>
+</html>
